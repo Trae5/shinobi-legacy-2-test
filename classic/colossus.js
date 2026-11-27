@@ -19,8 +19,8 @@ const S = {
 };
 
 /* ---------- harvest THREE classes from the live scene ---------- */
-function harvest(){
-  const g = window.SL && window.SL.game; if(!g || !g.scene) return false;
+function harvest(g0){
+  const g = g0 || (window.SL && window.SL.game); if(!g || !g.scene) return false;
   const sc = g.scene;
   let meshC=null, boxC=null, sphC=null, cylC=null, matC=null, grpC=null, lightC=null;
   sc.traverse(o=>{
@@ -52,8 +52,8 @@ function box(w,h,d,x,y,z,material,parent){
 }
 
 /* ---------- build the mech ---------- */
-function buildMech(x,z,yaw){
-  const T=S.TH, grp=new T.Group(); grp.position.set(x,0,z); grp.rotation.y=yaw; S.mech=grp; S.parts={};
+function buildMech(x,z,yaw,gy){
+  const T=S.TH, grp=new T.Group(); grp.position.set(x,gy||0,z); grp.rotation.y=yaw; S.mech=grp; S.parts={};
   const armor=mat(0x2b2f38), armor2=mat(0x3a3f4c), crimson=mat(0x7d1f2a), teal=glowMat(0x2ee8c8,1.8), dark=mat(0x14161c);
   const P=S.parts;
   /* legs */
@@ -94,8 +94,8 @@ function buildMech(x,z,yaw){
 }
 
 /* ---------- build the hangar ---------- */
-function buildHangar(){
-  const T=S.TH, grp=new T.Group(); grp.position.set(SITE.x,0,SITE.z); grp.rotation.y=SITE.yaw; S.hangarGrp=grp;
+function buildHangar(gy){
+  const T=S.TH, grp=new T.Group(); grp.position.set(SITE.x,gy||0,SITE.z); grp.rotation.y=SITE.yaw; S.hangarGrp=grp;
   const rock=mat(0x4a4038), rock2=mat(0x3a332c), teal=glowMat(0x2ee8c8,1.2), dark=mat(0x0a0c10);
   /* cliff mass */
   box(70,42,34, 0,21,-6, rock, grp);
@@ -165,7 +165,7 @@ function tick(ts){
   S.raf=requestAnimationFrame(tick);
   const g=window.SL&&window.SL.game, p=g&&g.player; if(!g||!p){ return; }
   /* village travel guard: rebuild if the scene was swapped */
-  if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(); buildMech(SITE.x,SITE.z-14,SITE.yaw); if(S.discovered){S.door.position.y=27;} } else return; }
+  if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(S.gy); buildMech(SITE.x,SITE.z-14,SITE.yaw,S.gy); if(S.discovered){S.door.position.y=27;} } else return; }
   S.t=(ts||0)/1000;
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
@@ -215,28 +215,43 @@ function onKey(e,down){
 const kd=e=>onKey(e,true), ku=e=>onKey(e,false);
 
 /* ---------- boot ---------- */
-function boot(){
-  if(S.on) return; if(!harvest()){ setTimeout(boot,700); return; }
-  S.on=true;
-  buildHangar(); buildMech(SITE.x,SITE.z-14,SITE.yaw);
-  ensureHud();
-  addEventListener("keydown",kd,true); addEventListener("keyup",ku,true);
-  S.raf=requestAnimationFrame(tick);
-  const dev=new URLSearchParams(location.search).get("colossus");
-  if(dev==="1"){
-    let ticks=0;
-    const wait=setInterval(()=>{ const p=S.game&&S.game.player; if(p&&p.pos){ ticks++;
-      p.pos.x=SITE.x+26; p.pos.z=SITE.z+18;
-      S.discovered=true; S.door.position.y=27; S.doorT=1.2;
-      console.log("[colossus] tp",ticks,p.pos.x.toFixed(0),p.pos.z.toFixed(0),"live:",!!(window.SL.game&&window.SL.game.player===p));
-      if(ticks===1){ try{ toast("🤖 COLOSSUS dev teleport — hangar ahead"); }catch(e){} }
-      if(ticks>24) clearInterval(wait); } },250);
-    setTimeout(()=>clearInterval(wait),20000);
+function ensure(game){
+  const g = game || (window.SL && window.SL.game);
+  if(!g || !g.scene) return false;
+  if(!harvest(g)) return false;
+  if(S.on && S.scene === g.scene && !S.needRebuild) return true;
+  let gy = 0; try{ gy = S.groundFn ? S.groundFn(SITE.x, SITE.z) : 0; }catch(e){ gy = 0; }
+  S.gy = gy || 0;
+  buildHangar(S.gy); buildMech(SITE.x, SITE.z-14, SITE.yaw, S.gy);
+  if(!S.on){
+    S.on = true; ensureHud();
+    addEventListener("keydown",kd,true); addEventListener("keyup",ku,true);
+    S.raf = requestAnimationFrame(tick);
+    startDevTeleport();
   }
-  console.log("[colossus] boot ok v"+CS,"mech @",SITE.x,SITE.z-14);
+  S.needRebuild = false;
+  console.log("[colossus] scene ok v"+CS,"mech @",SITE.x,(SITE.z-14),"gy",S.gy);
+  return true;
+}
+function onScene(game, api){ try{ S.groundFn = api && api.ground; }catch(e){} S.needRebuild = true; ensure(game); }
+function startDevTeleport(){
+  const dev = new URLSearchParams(location.search).get("colossus");
+  if(dev !== "1") return;
+  let ticks = 0;
+  const wait = setInterval(() => { const p = S.game && S.game.player; if(p && p.pos){ ticks++;
+    p.pos.x = SITE.x+26; p.pos.z = SITE.z+18;
+    if(S.door){ S.discovered = true; S.door.position.y = 27; S.doorT = 1.2; }
+    if(ticks === 1){ try{ toast("\u{1F916} COLOSSUS dev teleport \u2014 hangar ahead"); }catch(e){} }
+    console.log("[colossus] tp", ticks, p.pos.x.toFixed(0), p.pos.z.toFixed(0), "live:", !!(window.SL.game && window.SL.game.player === p));
+    if(ticks > 24) clearInterval(wait); } }, 250);
+  setTimeout(() => clearInterval(wait), 20000);
+}
+function boot(){
+  S.needRebuild = true;
+  if(!ensure()){ setTimeout(boot, 700); }
 }
 function waitGame(){ const g=window.SL&&window.SL.game; if(g&&g.scene&&g.player){ boot(); } else setTimeout(waitGame,600); }
 waitGame();
 
-const Colossus = { boot, state:S, mount, dismount, rocketPunch, buildMech, buildHangar };
+const Colossus = { boot, onScene, state:S, mount, dismount, rocketPunch, buildMech, buildHangar };
 export { Colossus };
