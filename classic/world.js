@@ -4,7 +4,8 @@
    Hook: window.__SL2world.onScene(game, {ground}) from buildScene.
    Pure addition on top of the existing world builder. No save changes.
    ============================================================ */
-const WV = "w1";
+const WV = "w2";
+console.log("[world] module up "+WV);
 
 function rng(seed){ let a = seed >>> 0; return function(){ a += 0x6D2B79F5; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
@@ -176,10 +177,10 @@ function stone(g, ground, r){
 
 function onScene(g, env){
   try{
-    if(!g||!g.scene) return;
+    if(!g||!g.scene){ console.log("[world] hook: no game/scene"); return; }
     if(g===S.game&&g.scene===S.lastScene&&S.grp) return; /* already remodeled this scene */
     S.game=g; S.scene=g.scene; S.lastScene=g.scene;
-    if(!harvest(g)) return;
+    if(!harvest(g)){ console.log("[world] harvest failed"); return; }
     const vid=g.villageId||"leaf", ground=env&&env.ground?env.ground:(x,z)=>0;
     const seed={leaf:11,sand:22,mist:33,cloud:44,stone:55}[vid]||7;
     const r=rng(seed*7919+13);
