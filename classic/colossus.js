@@ -187,10 +187,15 @@ function tick(ts){
         "live",(function(){try{return S.scene===g.scene}catch(e){return "?"}})(),
         "gkids",(function(){try{return g.scene.children.length}catch(e){return "?"}})(),
         "scr",(S.allMechs||[]).map(function(m){try{const v=new (S.TH.V3||(S.TH.V3=S.TH.Mesh.prototype.constructor.prototype.constructor))();m.getWorldPosition(v);v.project(cam);const sx=(v.x*0.5+0.5)*1280,sy=(1-(v.y*0.5+0.5))*720;return sx.toFixed(0)+","+sy.toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" HIDDEN")}catch(e){return "?"}}).join("|"));
-      try{ let d=document.getElementById("coldbg"); if(!d){ d=document.createElement("div"); d.id="coldbg"; d.style.cssText="position:fixed;top:60px;left:8px;z-index:99999;background:#000c;color:#0f0;font:12px monospace;padding:4px 6px;pointer-events:none;white-space:pre"; document.body.appendChild(d); }
-      const prj=o=>{ const v=(new S.TH.Mesh()).position; o.getWorldPosition(v); v.project(cam); return (v.x*640+640).toFixed(0)+","+(360-v.y*360).toFixed(0)+" z"+v.z.toFixed(2)+(o.visible?"":"H"); };
-      let t="mech1 "+prj(S.allMechs[0])+"\nmech2 "+prj(S.allMechs[1])+"\nbox "+(S.tbox?prj(S.tbox):"-")+"\nlive "+(S.scene===g.scene)+" gkids "+g.scene.children.length+" kids "+S.scene.children.length;
-      d.textContent=t; }catch(e){ try{const d=document.getElementById("coldbg"); if(d)d.textContent="dbgerr "+e.message;}catch(e2){} }
+      try{
+      let d=document.getElementById("coldbg"); if(!d){ d=document.createElement("div"); d.id="coldbg"; d.style.cssText="position:fixed;top:60px;left:8px;z-index:99999;background:#000c;color:#0f0;font:12px monospace;padding:4px 6px;pointer-events:none;white-space:pre"; document.body.appendChild(d); }
+      const V3=((S.mech&&S.mech.position)?S.mech.position.constructor:null)||(S.scene.children[0]&&S.scene.children[0].position?S.scene.children[0].position.constructor:null);
+      const lines=["len "+(S.allMechs||[]).length+" v3 "+(V3?V3.name:"-")+" cam "+(cam?"ok":"no")];
+      (S.allMechs||[]).forEach((m,i)=>{ try{ const v=new V3(); m.getWorldPosition(v); v.project(cam); lines.push("m"+i+" "+((v.x*640+640)|0)+","+((360-v.y*360)|0)+" z"+v.z.toFixed(2)+(m.visible?"":" HIDDEN")); }catch(e){ lines.push("m"+i+" ERR "+e.message); } });
+      if(S.tbox){ try{ const v=new V3(); S.tbox.getWorldPosition(v); v.project(cam); lines.push("box "+((v.x*640+640)|0)+","+((360-v.y*360)|0)+" z"+v.z.toFixed(2)); }catch(e){ lines.push("box ERR "+e.message); } }
+      lines.push("live "+(S.scene===g.scene)+" kids "+S.scene.children.length+"/"+g.scene.children.length);
+      d.textContent=lines.join("\n");
+    }catch(e){ try{const d=document.getElementById("coldbg"); if(d)d.textContent="dbgerr2 "+e.message;}catch(e2){} }
     }catch(e){}
   }
   if(!S.testDone && p.pos){
