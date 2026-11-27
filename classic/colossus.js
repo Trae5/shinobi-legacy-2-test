@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c1";
+const CS = "c2";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
