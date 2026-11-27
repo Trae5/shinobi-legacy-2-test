@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "cA";
+const CS = "cC";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -266,11 +266,12 @@ function ipx(dz){ return {x:IN_OFF.x, z:IN_OFF.z+dz}; }
 function buildInterior(){
   const T=S.TH; if(S.inner) return S.inner;
   const grp=new T.Group(); grp.position.set(IN_OFF.x,0,IN_OFF.z); S.scene.add(grp); S.inner=grp;
-  const floorM=mat(0x2a2e38), wallM=mat(0x3a3f4c), trim=glowMat(0x2ee8c8,1.2), redM=mat(0x7d1f2a);
+  try{ const lite=new T.PointLight(0xfff2d8,1.8,70); lite.position.set(0,8,0); grp.add(lite); }catch(e){}
+  const floorM=mat(0x55617a), wallM=mat(0x6b7488), trim=glowMat(0x2ee8c8,1.2), redM=mat(0xa03040);
   const box2=(w,h,d,x,y,z,m,parent)=>{ const o=new T.Mesh(new T.Box(w,h,d),m); o.position.set(x,y,z); (parent||grp).add(o); return o; };
   /* main deck: entry bay -> corridor -> cockpit, engine room to the side */
-  box2(22,1,18, 0,0,0, floorM);                    /* deck slab inside the hull */
-  box2(22,0.3,18, 0,0.55,0, trim);
+  box2(22,1,18, 0,-0.4,0, floorM);                 /* deck slab inside the hull */
+  box2(22,0.3,18, 0,0.1,0, trim);
   /* perimeter walls */
   for(const [x,z,w,d] of [[0,9.5,22,1],[0,-9.5,22,1],[11.5,0,1,18],[-11.5,0,1,18]]) box2(w,8,d,x,4,z,wallM);
   /* entry bay (rear, by the door) */
