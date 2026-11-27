@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c7";
+const CS = "c8";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -167,6 +167,12 @@ function tick(ts){
   /* village travel guard: rebuild if the scene was swapped */
   if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(S.gy); buildMech(SITE.x,SITE.z-14,SITE.yaw,S.gy); if(S.discovered){S.door.position.y=27;} buildInterior(); } else return; }
   S.t=(ts||0)/1000;
+  /* camera: while inside, drive it ourselves via the game's camOverride hook */
+  if(S.inside){
+    const yaw=(typeof p.yaw==="number")?p.yaw:0, py=(typeof p.pos.y==="number")?p.pos.y:0;
+    g.camOverride={pos:[p.pos.x+Math.sin(yaw)*4.2, py+2.6, p.pos.z+Math.cos(yaw)*4.2],
+                   look:[p.pos.x, py+1.4, p.pos.z]};
+  } else if(g.camOverride){ g.camOverride=null; }
   /* DEBUG: ground truth on where everything really is */
   S.f=(S.f||0)+1;
   if(S.f%120===1){
