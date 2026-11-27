@@ -8,7 +8,7 @@ import { hh, toast } from "./phase1.js?v=p1135";
 
 const CS = "c1";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
-const SITE = { x: -24, z: -206, yaw: 0.35 };
+const SITE = { x: -30, z: -150, yaw: 0.35 };
 
 const S = {
   on:false, scene:null, game:null, root:null, mech:null, parts:{},
@@ -226,13 +226,13 @@ function boot(){
   if(dev==="1"){
     let ticks=0;
     const wait=setInterval(()=>{ const p=S.game&&S.game.player; if(p&&p.pos){ ticks++;
-      p.pos.x=SITE.x+8; p.pos.z=SITE.z+22;
+      p.pos.x=SITE.x+26; p.pos.z=SITE.z+18;
       S.discovered=true; S.door.position.y=27; S.doorT=1.2;
       if(ticks===1){ try{ toast("🤖 COLOSSUS dev teleport — hangar ahead"); }catch(e){} }
       if(ticks>24) clearInterval(wait); } },250);
     setTimeout(()=>clearInterval(wait),20000);
   }
-  console.log("[colossus] boot ok v"+CS);
+  console.log("[colossus] boot ok v"+CS,"mech @",SITE.x,SITE.z-14);
 }
 function waitGame(){ const g=window.SL&&window.SL.game; if(g&&g.scene&&g.player){ boot(); } else setTimeout(waitGame,600); }
 waitGame();
