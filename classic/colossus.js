@@ -165,7 +165,7 @@ function tick(ts){
   S.raf=requestAnimationFrame(tick);
   const g=window.SL&&window.SL.game, p=g&&g.player; if(!g||!p){ return; }
   /* village travel guard: rebuild if the scene was swapped */
-  if(g.scene!==S.scene){ if(harvest()){ buildHangar(); buildMech(SITE.x,SITE.z-14,SITE.yaw); if(S.discovered){S.door.position.y=27;} } else return; }
+  if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(); buildMech(SITE.x,SITE.z-14,SITE.yaw); if(S.discovered){S.door.position.y=27;} } else return; }
   S.t=(ts||0)/1000;
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
@@ -228,6 +228,7 @@ function boot(){
     const wait=setInterval(()=>{ const p=S.game&&S.game.player; if(p&&p.pos){ ticks++;
       p.pos.x=SITE.x+26; p.pos.z=SITE.z+18;
       S.discovered=true; S.door.position.y=27; S.doorT=1.2;
+      console.log("[colossus] tp",ticks,p.pos.x.toFixed(0),p.pos.z.toFixed(0),"live:",!!(window.SL.game&&window.SL.game.player===p));
       if(ticks===1){ try{ toast("🤖 COLOSSUS dev teleport — hangar ahead"); }catch(e){} }
       if(ticks>24) clearInterval(wait); } },250);
     setTimeout(()=>clearInterval(wait),20000);
