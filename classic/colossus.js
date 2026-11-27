@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c3";
+const CS = "c4";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -272,7 +272,7 @@ function buildInterior(){
   for(let i=0;i<4;i++){ box2(1.2,8,1.2, -10,4,-18+i*12, wallM); box2(1.2,8,1.2, 10,4,-18+i*12, wallM); }
   /* cockpit (north end): console + pilot seat + viewport */
   box2(14,1,10, 0,0.6,-24, wallM);                 /* cockpit floor raise */
-  box2(8,2.2,2.4, 0,1.9,-28, dark);                /* console */
+  box2(8,2.2,2.4, 0,1.9,-28, mat(0x232830));                /* console */
   box2(7,1.2,0.4, 0,3.3,-28, trim);                /* console screen */
   box2(3,1.4,3, 0,1.4,-24.5, redM);                /* pilot seat */
   box2(14,7,0.6, 0,5,-29.6, trim);                 /* viewport glass */
