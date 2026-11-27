@@ -167,6 +167,25 @@ function tick(ts){
   /* village travel guard: rebuild if the scene was swapped */
   if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(S.gy); buildMech(SITE.x,SITE.z-14,SITE.yaw,S.gy); if(S.discovered){S.door.position.y=27;} } else return; }
   S.t=(ts||0)/1000;
+  /* DEBUG: ground truth on where everything really is */
+  S.f=(S.f||0)+1;
+  if(S.f%120===1){
+    try{
+      const cam=g.camera, m=p.mesh||p.model||p.obj;
+      console.log("[colossus] dbg cam",cam?cam.position.x.toFixed(0)+","+cam.position.z.toFixed(0):"-",
+        "p",p.pos.x.toFixed(0)+","+p.pos.z.toFixed(0),
+        "mesh",m&&m.position?m.position.x.toFixed(0)+","+m.position.z.toFixed(0):"-",
+        "mechIn",!!(S.mech&&S.mech.parent===S.scene),"kids",S.scene.children.length);
+    }catch(e){}
+  }
+  if(!S.testDone && p.pos){
+    S.testDone=true;
+    try{
+      const T=S.TH; const tb=new T.Mesh(new T.Box(6,6,6), new T.Mat({color:0xff2020}));
+      tb.position.set(p.pos.x,6,p.pos.z); S.scene.add(tb);
+      console.log("[colossus] test box @",p.pos.x.toFixed(0),p.pos.z.toFixed(0));
+    }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
+  }
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
   if(!S.discovered && dH<26){ S.discovered=true; S.doorT=0.001; try{ toast("Something massive shifts behind the cliff face..."); }catch(e){} }
