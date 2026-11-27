@@ -187,6 +187,7 @@ function tick(ts){
         "live",(function(){try{return S.scene===g.scene}catch(e){return "?"}})(),
         "gkids",(function(){try{return g.scene.children.length}catch(e){return "?"}})(),
         "scr",(S.allMechs||[]).map(function(m){try{const v=new (S.TH.V3||(S.TH.V3=S.TH.Mesh.prototype.constructor.prototype.constructor))();m.getWorldPosition(v);v.project(cam);const sx=(v.x*0.5+0.5)*1280,sy=(1-(v.y*0.5+0.5))*720;return sx.toFixed(0)+","+sy.toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" HIDDEN")}catch(e){return "?"}}).join("|"));
+      try{document.title="COLDBG "+mechs+" | "+cam+" | "+(S.allMechs||[]).map(function(m){try{const v=m.getWorldPosition(S.tmpV||(S.tmpV=new (S.TH.V3||Object)));S.tmpV=v;v.project(cam);return (v.x*640+640).toFixed(0)+","+(360-v.y*360).toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" H")}catch(e){return "?"}}).join("|")}catch(e){}
     }catch(e){}
   }
   if(!S.testDone && p.pos){
