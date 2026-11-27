@@ -53,7 +53,7 @@ function box(w,h,d,x,y,z,material,parent){
 
 /* ---------- build the mech ---------- */
 function buildMech(x,z,yaw,gy){
-  const T=S.TH, grp=new T.Group(); grp.position.set(x,gy||0,z); grp.rotation.y=yaw; S.mech=grp; S.parts={};
+  const T=S.TH, grp=new T.Group(); grp.position.set(x,gy||0,z); grp.rotation.y=yaw; S.mech=grp; S.parts={}; (S.allMechs=S.allMechs||[]).push(grp);
   const armor=mat(0x2b2f38), armor2=mat(0x3a3f4c), crimson=mat(0x7d1f2a), teal=glowMat(0x2ee8c8,1.8), dark=mat(0x14161c);
   const P=S.parts;
   /* legs */
@@ -175,7 +175,9 @@ function tick(ts){
       console.log("[colossus] dbg cam",cam?cam.position.x.toFixed(0)+","+cam.position.z.toFixed(0):"-",
         "p",p.pos.x.toFixed(0)+","+p.pos.z.toFixed(0),
         "mesh",m&&m.position?m.position.x.toFixed(0)+","+m.position.z.toFixed(0):"-",
-        "mechIn",!!(S.mech&&S.mech.parent===S.scene),"kids",S.scene.children.length);
+        "mechIn",!!(S.mech&&S.mech.parent===S.scene),"kids",S.scene.children.length,
+        "mechs",(S.allMechs||[]).map(m=>{try{const e=m.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)+(m.scale.x!==1?" x"+m.scale.x:"")}catch(e){return "?"}}).join("|"),
+        "hangar",(S.hangar?(()=>{try{const e=S.hangar.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)}catch(e){return "?"}})():"-"));
     }catch(e){}
   }
   if(!S.testDone && p.pos){
@@ -187,6 +189,12 @@ function tick(ts){
     }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
     try{ buildMech(p.pos.x+12, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
     catch(e){ console.log("[colossus] mech2 fail",(e&&e.message)||e); }
+    try{
+      const recol=(grp,c)=>{ grp.traverse(o=>{ if(o.isMesh&&o.material&&o.material.color&&o.material.color.set){ o.material.color.set(c); } }); };
+      (S.allMechs||[]).forEach((m,i)=>{ recol(m,0xff2020); if(i===0){ m.scale.setScalar(3); } });
+      if(S.hangar){ recol(S.hangar,0xff8800); }
+      console.log("[colossus] recolored mechs:",(S.allMechs||[]).length,"hangar:",!!S.hangar);
+    }catch(e){ console.log("[colossus] recolor fail",(e&&e.message)||e); }
   }
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
