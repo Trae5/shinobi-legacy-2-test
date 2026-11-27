@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c9";
+const CS = "cA";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -170,9 +170,9 @@ function tick(ts){
   /* camera: while inside, drive it ourselves via the game's camOverride hook */
   if(S.inside){
     const yaw=(typeof p.yaw==="number")?p.yaw:0, py=(typeof p.pos.y==="number")?p.pos.y:0;
-    g.camOverride={pos:[p.pos.x+Math.sin(yaw)*4.2, py+2.6, p.pos.z+Math.cos(yaw)*4.2],
+    p.camOverride={pos:[p.pos.x+Math.sin(yaw)*4.2, py+2.6, p.pos.z+Math.cos(yaw)*4.2],
                    look:[p.pos.x, py+1.4, p.pos.z]};
-  } else if(g.camOverride){ g.camOverride=null; }
+  } else if(p.camOverride){ p.camOverride=null; }
   if(S.mech){ const wantVis=!S.inside; if(S.mech.visible!==wantVis) S.mech.visible=wantVis; }
   /* DEBUG: ground truth on where everything really is */
   S.f=(S.f||0)+1;
