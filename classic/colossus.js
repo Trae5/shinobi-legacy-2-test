@@ -176,7 +176,11 @@ function tick(ts){
         "p",p.pos.x.toFixed(0)+","+p.pos.z.toFixed(0),
         "mesh",m&&m.position?m.position.x.toFixed(0)+","+m.position.z.toFixed(0):"-",
         "mechIn",!!(S.mech&&S.mech.parent===S.scene),"kids",S.scene.children.length,
-        "mechs",(S.allMechs||[]).map(m=>{try{const e=m.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)+(m.scale.x!==1?" x"+m.scale.x:"")}catch(e){return "?"}}).join("|"),
+        "pY",(function(){try{return p.pos.y.toFixed(1)}catch(e){return "?"}})(),
+        "gSite",(function(){try{return S.groundFn?S.groundFn(SITE.x,SITE.z).toFixed(1):"nofn"}catch(e){return "?"}})(),
+        "gPlayer",(function(){try{return S.groundFn?S.groundFn(p.pos.x,p.pos.z).toFixed(1):"nofn"}catch(e){return "?"}})(),
+        "mechs",(S.allMechs||[]).map(m=>{try{const e=m.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)+" y"+e[13].toFixed(1)+(m.scale.x!==1?" x"+m.scale.x:"")}catch(e){return "?"}}).join("|"),
+        "hangarY",(function(){try{return S.hangarGrp.matrixWorld.elements[13].toFixed(1)}catch(e){return "?"}})(),
         "hangar",(S.hangar?(()=>{try{const e=S.hangar.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)}catch(e){return "?"}})():"-"));
     }catch(e){}
   }
@@ -195,6 +199,12 @@ function tick(ts){
       if(S.hangar){ recol(S.hangar,0xff8800); }
       console.log("[colossus] recolored mechs:",(S.allMechs||[]).length,"hangar:",!!S.hangar);
     }catch(e){ console.log("[colossus] recolor fail",(e&&e.message)||e); }
+    try{
+      p.pos.x=-30; p.pos.z=-152; try{p.pos.y=S.groundFn?S.groundFn(-30,-152):0;}catch(e){}
+      try{ p.yaw=Math.PI; }catch(e){}
+      try{ p.rot&&(p.rot.y=Math.PI); }catch(e){}
+      console.log("[colossus] tp to site @ -30 -152");
+    }catch(e){ console.log("[colossus] tp fail",(e&&e.message)||e); }
   }
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
