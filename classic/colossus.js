@@ -205,7 +205,7 @@ function tick(ts){
       tb.position.set(p.pos.x+18,6,p.pos.z); S.scene.add(tb); S.tbox=tb;
       console.log("[colossus] test box @",p.pos.x.toFixed(0),p.pos.z.toFixed(0));
     }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
-    try{ buildMech(p.pos.x+12, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
+    try{ buildMech(p.pos.x+40, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
     catch(e){ console.log("[colossus] mech2 fail",(e&&e.message)||e); }
     try{
       const recol=(grp,c)=>{ grp.traverse(o=>{ if(o.isMesh&&o.material&&o.material.color&&o.material.color.set){ o.material.color.set(c); } }); };
@@ -214,10 +214,10 @@ function tick(ts){
       console.log("[colossus] recolored mechs:",(S.allMechs||[]).length,"hangar:",!!S.hangar);
     }catch(e){ console.log("[colossus] recolor fail",(e&&e.message)||e); }
     try{
-      p.pos.x=-30; p.pos.z=-152; try{p.pos.y=S.groundFn?S.groundFn(-30,-152):0;}catch(e){}
+      p.pos.x=-30; p.pos.z=-136; try{p.pos.y=S.groundFn?S.groundFn(-30,-136):0;}catch(e){}
       try{ p.yaw=Math.PI; }catch(e){}
       try{ p.rot&&(p.rot.y=Math.PI); }catch(e){}
-      console.log("[colossus] tp to site @ -30 -152");
+      console.log("[colossus] tp to site @ -30 -136");
     }catch(e){ console.log("[colossus] tp fail",(e&&e.message)||e); }
   }
   /* door discovery */
