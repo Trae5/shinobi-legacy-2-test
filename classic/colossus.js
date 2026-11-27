@@ -224,9 +224,12 @@ function boot(){
   S.raf=requestAnimationFrame(tick);
   const dev=new URLSearchParams(location.search).get("colossus");
   if(dev==="1"){
-    const wait=setInterval(()=>{ const p=S.game&&S.game.player; if(p&&p.pos){ clearInterval(wait);
-      p.pos.x=SITE.x+8; p.pos.z=SITE.z+22; S.discovered=true; S.door.position.y=27; S.doorT=1.2;
-      try{ toast("🤖 COLOSSUS dev teleport — hangar ahead"); }catch(e){} } },300);
+    let ticks=0;
+    const wait=setInterval(()=>{ const p=S.game&&S.game.player; if(p&&p.pos){ ticks++;
+      p.pos.x=SITE.x+8; p.pos.z=SITE.z+22;
+      S.discovered=true; S.door.position.y=27; S.doorT=1.2;
+      if(ticks===1){ try{ toast("🤖 COLOSSUS dev teleport — hangar ahead"); }catch(e){} }
+      if(ticks>24) clearInterval(wait); } },250);
     setTimeout(()=>clearInterval(wait),20000);
   }
   console.log("[colossus] boot ok v"+CS);
