@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c2";
+const CS = "c3";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -165,7 +165,7 @@ function tick(ts){
   S.raf=requestAnimationFrame(tick);
   const g=window.SL&&window.SL.game, p=g&&g.player; if(!g||!p){ return; }
   /* village travel guard: rebuild if the scene was swapped */
-  if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(S.gy); buildMech(SITE.x,SITE.z-14,SITE.yaw,S.gy); if(S.discovered){S.door.position.y=27;} } else return; }
+  if(g.scene!==S.scene){ if(harvest()){ console.log("[colossus] scene rebuild"); buildHangar(S.gy); buildMech(SITE.x,SITE.z-14,SITE.yaw,S.gy); if(S.discovered){S.door.position.y=27;} buildInterior(); } else return; }
   S.t=(ts||0)/1000;
   /* DEBUG: ground truth on where everything really is */
   S.f=(S.f||0)+1;
@@ -247,11 +247,63 @@ function tick(ts){
     const cdEl=document.getElementById("colCd"); if(cdEl) cdEl.textContent=S.cd>0?("Q Rocket Punch · "+S.cd.toFixed(1)+"s"):"Q Rocket Punch · ready";
     setPrompt("Dismount");
   } else {
-    if(S.discovered && dH<14 && !S.eWait) setPrompt("Climb aboard the Colossus");
+    if(S.inside){ if(nearInner(IN_OFF.x,IN_OFF.z-24.5,7)) setPrompt("Take the helm"); else if(nearInner(IN_OFF.x,IN_OFF.z+24,8)) setPrompt("Step outside"); else setPrompt("Walk the deck"); } else if(S.discovered && dH<14 && !S.eWait) setPrompt("Step inside the Colossus");
     else if(!S.discovered && dH<30) setPrompt("Inspect the cliff face");
     else setPrompt(null);
   }
 }
+
+/* ---------- interior (walkable inside the zord) ---------- */
+const IN_OFF={x:-400,z:-400};
+function buildInterior(){
+  const T=S.TH; if(S.inner) return S.inner;
+  const grp=new T.Group(); grp.position.set(IN_OFF.x,0,IN_OFF.z); S.scene.add(grp); S.inner=grp;
+  const floorM=mat(0x2a2e38), wallM=mat(0x3a3f4c), trim=glowMat(0x2ee8c8,1.2), redM=mat(0x7d1f2a);
+  const box2=(w,h,d,x,y,z,m,parent)=>{ const o=new T.Mesh(new T.Box(w,h,d),m); o.position.set(x,y,z); (parent||grp).add(o); return o; };
+  /* main deck: entry bay -> corridor -> cockpit, engine room to the side */
+  box2(30,1,60, 0,0,0, floorM);                    /* deck slab */
+  box2(30,0.4,60, 0,0.55,0, trim);                 /* deck trim strip */
+  /* perimeter walls */
+  for(const [x,z,w,d] of [[0,30.5,30,1],[0,-30.5,30,1],[15.5,0,1,60],[-15.5,0,1,60]]) box2(w,9,d,x,4.5,z,wallM);
+  /* entry bay (south): ramp + big doors feel */
+  box2(6,0.5,4, 0,0.3,26, redM);
+  box2(2,6,1, -8,3,24, redM); box2(2,6,1, 8,3,24, redM);
+  /* corridor columns */
+  for(let i=0;i<4;i++){ box2(1.2,8,1.2, -10,4,-18+i*12, wallM); box2(1.2,8,1.2, 10,4,-18+i*12, wallM); }
+  /* cockpit (north end): console + pilot seat + viewport */
+  box2(14,1,10, 0,0.6,-24, wallM);                 /* cockpit floor raise */
+  box2(8,2.2,2.4, 0,1.9,-28, dark);                /* console */
+  box2(7,1.2,0.4, 0,3.3,-28, trim);                /* console screen */
+  box2(3,1.4,3, 0,1.4,-24.5, redM);                /* pilot seat */
+  box2(14,7,0.6, 0,5,-29.6, trim);                 /* viewport glass */
+  /* engine room (west side): reactor */
+  box2(10,1,14, -11,0.6,10, wallM);                /* engine floor */
+  box2(4,6,4, -11,4,10, redM);                     /* reactor block */
+  box2(1.4,1.4,1.4, -11,8,10, trim);               /* core glow */
+  /* weapon bay (east side): racks */
+  box2(10,1,14, 11,0.6,10, wallM);
+  for(let i=0;i<3;i++){ box2(1.2,3,8, 9.5+i*1.6,2.2,10, wallM); }
+  S.innerExit=box2(3,5,0.6, 0,2.5,29.6, redM);     /* exit hatch marker */
+  S.innerSeat={x:IN_OFF.x+0,y:1.4,z:IN_OFF.z-24.5};
+  console.log("[colossus] interior built v"+CS);
+  return S.inner;
+}
+function enterInterior(){
+  const g=S.game,p=g&&g.player; if(!p) return;
+  if(!S.inner) buildInterior();
+  S.outPos={x:p.pos.x,y:p.pos.y,z:p.pos.z,yaw:p.yaw};
+  p.pos.x=IN_OFF.x; p.pos.z=IN_OFF.z+24; p.pos.y=0.8;
+  S.inside=true;
+  try{ toast("Aboard the Colossus — the deck hums under your feet."); }catch(e){}
+}
+function exitInterior(){
+  const g=S.game,p=g&&g.player; if(!p||!S.inside) return;
+  const o=S.outPos||{x:SITE.x,z:SITE.z+14,y:0};
+  p.pos.x=o.x; p.pos.z=o.z; try{p.pos.y=o.y;}catch(e){}
+  S.inside=false;
+  try{ toast("Back outside — the titan looms over you."); }catch(e){}
+}
+function nearInner(x,z,r){ const g=S.game,p=g&&g.player; if(!p||!S.inside) return false; return Math.hypot(p.pos.x-x,p.pos.z-z)<r; }
 
 /* ---------- input ---------- */
 function onKey(e,down){
@@ -260,9 +312,9 @@ function onKey(e,down){
   if(k==="e"){
     const g=S.game,p=g&&g.player; if(!p||S.piloting) return;
     const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, d=Math.hypot(dx,dz);
-    if(S.discovered && d<14 && !S.eWait){ S.eWait=true; mount(); setTimeout(()=>{S.eWait=false;},400); }
+    if(S.inside){ if(nearInner(IN_OFF.x,IN_OFF.z-24.5,7)){ S.eWait=true; mount(); setTimeout(()=>{S.eWait=false;},400); } else if(nearInner(IN_OFF.x,IN_OFF.z+24,8)){ S.eWait=true; exitInterior(); setTimeout(()=>{S.eWait=false;},400); } } else if(S.discovered && d<14 && !S.eWait){ S.eWait=true; enterInterior(); setTimeout(()=>{S.eWait=false;},400); }
   }
-  if(k==="x" && S.piloting) dismount();
+  if(k==="x" && S.piloting) dismount(); if(k==="x" && S.inside && !S.piloting) exitInterior();
   if(k==="q" && S.piloting) rocketPunch();
 }
 const kd=e=>onKey(e,true), ku=e=>onKey(e,false);
@@ -275,7 +327,7 @@ function ensure(game){
   if(S.on && S.scene === g.scene && !S.needRebuild) return true;
   let gy = 0; try{ gy = S.groundFn ? S.groundFn(SITE.x, SITE.z) : 0; }catch(e){ gy = 0; }
   S.gy = gy || 0;
-  buildHangar(S.gy); buildMech(SITE.x, SITE.z-14, SITE.yaw, S.gy);
+  buildHangar(S.gy); buildMech(SITE.x, SITE.z-14, SITE.yaw, S.gy); buildInterior();
   if(!S.on){
     S.on = true; ensureHud();
     addEventListener("keydown",kd,true); addEventListener("keyup",ku,true);
