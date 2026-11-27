@@ -177,6 +177,8 @@ function tick(ts){
         "mesh",m&&m.position?m.position.x.toFixed(0)+","+m.position.z.toFixed(0):"-",
         "mechIn",!!(S.mech&&S.mech.parent===S.scene),"kids",S.scene.children.length,
         "pY",(function(){try{return p.pos.y.toFixed(1)}catch(e){return "?"}})(),
+        "far",(function(){try{return g.camera.far}catch(e){return "?"}})(),
+        "fog",(function(){try{return g.scene.fog?g.scene.fog.near+"/"+g.scene.fog.far:"none"}catch(e){return "?"}})(),
         "gSite",(function(){try{return S.groundFn?S.groundFn(SITE.x,SITE.z).toFixed(1):"nofn"}catch(e){return "?"}})(),
         "gPlayer",(function(){try{return S.groundFn?S.groundFn(p.pos.x,p.pos.z).toFixed(1):"nofn"}catch(e){return "?"}})(),
         "mechs",(S.allMechs||[]).map(m=>{try{const e=m.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)+" y"+e[13].toFixed(1)+(m.scale.x!==1?" x"+m.scale.x:"")}catch(e){return "?"}}).join("|"),
@@ -278,7 +280,7 @@ function startDevTeleport(){
   if(dev !== "1") return;
   let ticks = 0;
   const wait = setInterval(() => { const p = S.game && S.game.player; if(p && p.pos){ ticks++;
-    p.pos.x = SITE.x+26; p.pos.z = SITE.z+18;
+    p.pos.x = SITE.x; p.pos.z = SITE.z-2;
     if(S.door){ S.discovered = true; S.door.position.y = 27; S.doorT = 1.2; }
     if(ticks === 1){ try{ toast("\u{1F916} COLOSSUS dev teleport \u2014 hangar ahead"); }catch(e){} }
     console.log("[colossus] tp", ticks, p.pos.x.toFixed(0), p.pos.z.toFixed(0), "live:", !!(window.SL.game && window.SL.game.player === p));

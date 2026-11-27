@@ -3920,4 +3920,4 @@ try{import("./phase6.js?v=p1135").then(m=>{m&&m.boot&&m.boot()}).catch(()=>{})}c
 try{import("./academy.js?v=a6").then(m=>{window.__SL2academy=m||null;try{window.SL&&(window.SL.academy=m)}catch(e){}}).catch(()=>{})}catch(e){}
 try{const q=new URLSearchParams(location.search).get("ptest");if(q){setTimeout(()=>{const b=document.getElementById(q);if(b)b.click();},3500);}}catch(e){}
 
-try{import("./colossus.js?v=c9").then(m=>{window.__SL2colossus=m||null;try{window.SL&&(window.SL.colossus=m)}catch(e){}}).catch(()=>{})}catch(e){}
+try{import("./colossus.js?v=c10").then(m=>{window.__SL2colossus=m||null;try{window.SL&&(window.SL.colossus=m)}catch(e){}}).catch(()=>{})}catch(e){}
