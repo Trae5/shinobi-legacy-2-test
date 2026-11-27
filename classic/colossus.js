@@ -187,14 +187,17 @@ function tick(ts){
         "live",(function(){try{return S.scene===g.scene}catch(e){return "?"}})(),
         "gkids",(function(){try{return g.scene.children.length}catch(e){return "?"}})(),
         "scr",(S.allMechs||[]).map(function(m){try{const v=new (S.TH.V3||(S.TH.V3=S.TH.Mesh.prototype.constructor.prototype.constructor))();m.getWorldPosition(v);v.project(cam);const sx=(v.x*0.5+0.5)*1280,sy=(1-(v.y*0.5+0.5))*720;return sx.toFixed(0)+","+sy.toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" HIDDEN")}catch(e){return "?"}}).join("|"));
-      try{document.title="COLDBG "+mechs+" | "+cam+" | "+(S.allMechs||[]).map(function(m){try{const v=m.getWorldPosition(S.tmpV||(S.tmpV=new (S.TH.V3||Object)));S.tmpV=v;v.project(cam);return (v.x*640+640).toFixed(0)+","+(360-v.y*360).toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" H")}catch(e){return "?"}}).join("|")}catch(e){}
+      try{ let d=document.getElementById("coldbg"); if(!d){ d=document.createElement("div"); d.id="coldbg"; d.style.cssText="position:fixed;top:60px;left:8px;z-index:99999;background:#000c;color:#0f0;font:12px monospace;padding:4px 6px;pointer-events:none;white-space:pre"; document.body.appendChild(d); }
+      const prj=o=>{ const v=(new S.TH.Mesh()).position; o.getWorldPosition(v); v.project(cam); return (v.x*640+640).toFixed(0)+","+(360-v.y*360).toFixed(0)+" z"+v.z.toFixed(2)+(o.visible?"":"H"); };
+      let t="mech1 "+prj(S.allMechs[0])+"\nmech2 "+prj(S.allMechs[1])+"\nbox "+(S.tbox?prj(S.tbox):"-")+"\nlive "+(S.scene===g.scene)+" gkids "+g.scene.children.length+" kids "+S.scene.children.length;
+      d.textContent=t; }catch(e){ try{const d=document.getElementById("coldbg"); if(d)d.textContent="dbgerr "+e.message;}catch(e2){} }
     }catch(e){}
   }
   if(!S.testDone && p.pos){
     S.testDone=true;
     try{
       const T=S.TH; const tb=new T.Mesh(new T.Box(6,6,6), new T.Mat({color:0xff2020}));
-      tb.position.set(p.pos.x+18,6,p.pos.z); S.scene.add(tb);
+      tb.position.set(p.pos.x+18,6,p.pos.z); S.scene.add(tb); S.tbox=tb;
       console.log("[colossus] test box @",p.pos.x.toFixed(0),p.pos.z.toFixed(0));
     }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
     try{ buildMech(p.pos.x+12, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
