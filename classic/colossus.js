@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c8";
+const CS = "c9";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -173,6 +173,7 @@ function tick(ts){
     g.camOverride={pos:[p.pos.x+Math.sin(yaw)*4.2, py+2.6, p.pos.z+Math.cos(yaw)*4.2],
                    look:[p.pos.x, py+1.4, p.pos.z]};
   } else if(g.camOverride){ g.camOverride=null; }
+  if(S.mech){ const wantVis=!S.inside; if(S.mech.visible!==wantVis) S.mech.visible=wantVis; }
   /* DEBUG: ground truth on where everything really is */
   S.f=(S.f||0)+1;
   if(S.f%120===1){
@@ -349,7 +350,7 @@ function startDevTeleport(){
   const wait = setInterval(() => { const p = S.game && S.game.player; if(p && p.pos){ ticks++;
     p.pos.x = SITE.x; p.pos.z = SITE.z+14;
     if(S.door){ S.discovered = true; S.door.position.y = 27; S.doorT = 1.2; }
-    if(ticks === 1){ try{ toast("\u{1F916} COLOSSUS dev teleport \u2014 hangar ahead"); }catch(e){} setTimeout(()=>{ try{ if(!S.inside){ enterInterior(); } }catch(e){} }, 1400); }
+    if(ticks === 1){ try{ toast("\u{1F916} COLOSSUS dev teleport \u2014 hangar ahead"); }catch(e){} setTimeout(()=>{ try{ if(!S.inside && /enter=1/.test(location.search)){ enterInterior(); } }catch(e){} }, 1400); }
     console.log("[colossus] tp", ticks, p.pos.x.toFixed(0), p.pos.z.toFixed(0), "live:", !!(window.SL.game && window.SL.game.player === p));
     if(ticks > 24) clearInterval(wait); } }, 250);
   setTimeout(() => clearInterval(wait), 20000);
