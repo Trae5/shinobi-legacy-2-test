@@ -182,9 +182,11 @@ function tick(ts){
     S.testDone=true;
     try{
       const T=S.TH; const tb=new T.Mesh(new T.Box(6,6,6), new T.Mat({color:0xff2020}));
-      tb.position.set(p.pos.x,6,p.pos.z); S.scene.add(tb);
+      tb.position.set(p.pos.x+18,6,p.pos.z); S.scene.add(tb);
       console.log("[colossus] test box @",p.pos.x.toFixed(0),p.pos.z.toFixed(0));
     }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
+    try{ buildMech(p.pos.x+12, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
+    catch(e){ console.log("[colossus] mech2 fail",(e&&e.message)||e); }
   }
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
