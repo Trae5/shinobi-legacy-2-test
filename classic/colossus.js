@@ -183,7 +183,10 @@ function tick(ts){
         "gPlayer",(function(){try{return S.groundFn?S.groundFn(p.pos.x,p.pos.z).toFixed(1):"nofn"}catch(e){return "?"}})(),
         "mechs",(S.allMechs||[]).map(m=>{try{const e=m.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)+" y"+e[13].toFixed(1)+(m.scale.x!==1?" x"+m.scale.x:"")}catch(e){return "?"}}).join("|"),
         "hangarY",(function(){try{return S.hangarGrp.matrixWorld.elements[13].toFixed(1)}catch(e){return "?"}})(),
-        "hangar",(S.hangar?(()=>{try{const e=S.hangar.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)}catch(e){return "?"}})():"-"));
+        "hangar",(S.hangar?(()=>{try{const e=S.hangar.matrixWorld.elements;return e[12].toFixed(0)+","+e[14].toFixed(0)}catch(e){return "?"}})():"-"),
+        "live",(function(){try{return S.scene===g.scene}catch(e){return "?"}})(),
+        "gkids",(function(){try{return g.scene.children.length}catch(e){return "?"}})(),
+        "scr",(S.allMechs||[]).map(function(m){try{const v=new (S.TH.V3||(S.TH.V3=S.TH.Mesh.prototype.constructor.prototype.constructor))();m.getWorldPosition(v);v.project(cam);const sx=(v.x*0.5+0.5)*1280,sy=(1-(v.y*0.5+0.5))*720;return sx.toFixed(0)+","+sy.toFixed(0)+" z"+v.z.toFixed(2)+(m.visible?"":" HIDDEN")}catch(e){return "?"}}).join("|"));
     }catch(e){}
   }
   if(!S.testDone && p.pos){
