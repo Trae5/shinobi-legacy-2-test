@@ -6,7 +6,7 @@
    ============================================================ */
 import { hh, toast } from "./phase1.js?v=p1135";
 
-const CS = "c4";
+const CS = "c5";
 /* hangar site: leaf outskirts, south field (tweak after eyeballing) */
 const SITE = { x: -30, z: -150, yaw: 0.35 };
 
@@ -344,7 +344,7 @@ function startDevTeleport(){
   if(dev !== "1") return;
   let ticks = 0;
   const wait = setInterval(() => { const p = S.game && S.game.player; if(p && p.pos){ ticks++;
-    p.pos.x = SITE.x; p.pos.z = SITE.z-2;
+    p.pos.x = SITE.x; p.pos.z = SITE.z+14;
     if(S.door){ S.discovered = true; S.door.position.y = 27; S.doorT = 1.2; }
     if(ticks === 1){ try{ toast("\u{1F916} COLOSSUS dev teleport \u2014 hangar ahead"); }catch(e){} }
     console.log("[colossus] tp", ticks, p.pos.x.toFixed(0), p.pos.z.toFixed(0), "live:", !!(window.SL.game && window.SL.game.player === p));
