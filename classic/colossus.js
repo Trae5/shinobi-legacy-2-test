@@ -205,27 +205,6 @@ function tick(ts){
     }catch(e){ try{const d=document.getElementById("coldbg"); if(d)d.textContent="dbgerr2 "+e.message;}catch(e2){} }
     }catch(e){}
   }
-  if(!S.testDone && p.pos){
-    S.testDone=true;
-    try{
-      const T=S.TH; const tb=new T.Mesh(new T.Box(6,6,6), new T.Mat({color:0xff2020}));
-      tb.position.set(p.pos.x+18,6,p.pos.z); S.scene.add(tb); S.tbox=tb;
-      console.log("[colossus] test box @",p.pos.x.toFixed(0),p.pos.z.toFixed(0));
-    }catch(e){ console.log("[colossus] test box fail",(e&&e.message)||e); }
-    try{ buildMech(p.pos.x+40, p.pos.z, 0, S.gy); console.log("[colossus] mech2 beside player @",p.pos.x.toFixed(0),p.pos.z.toFixed(0)); }
-    catch(e){ console.log("[colossus] mech2 fail",(e&&e.message)||e); }
-    try{
-      const recol=(grp,c)=>{ grp.traverse(o=>{ if(o.isMesh&&o.material&&o.material.color&&o.material.color.set){ o.material.color.set(c); } }); };
-      (S.allMechs||[]).forEach((m,i)=>{ recol(m,0xff2020); if(i===0){ m.scale.setScalar(3); } });
-      if(S.hangar){ recol(S.hangar,0xff8800); }
-      console.log("[colossus] recolored mechs:",(S.allMechs||[]).length,"hangar:",!!S.hangar);
-    }catch(e){ console.log("[colossus] recolor fail",(e&&e.message)||e); }
-    try{
-      p.pos.x=-30; p.pos.z=-136; try{p.pos.y=S.groundFn?S.groundFn(-30,-136):0;}catch(e){}
-      try{ p.yaw=Math.PI; }catch(e){}
-      try{ p.rot&&(p.rot.y=Math.PI); }catch(e){}
-      console.log("[colossus] tp to site @ -30 -136");
-    }catch(e){ console.log("[colossus] tp fail",(e&&e.message)||e); }
   }
   /* door discovery */
   const dx=p.pos.x-SITE.x, dz=p.pos.z-SITE.z, dH=Math.hypot(dx,dz);
