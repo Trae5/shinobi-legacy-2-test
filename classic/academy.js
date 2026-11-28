@@ -23,6 +23,10 @@ const ACADEMY_POS = {
   stone:  [-16.8, 24.9, 1.516, 22, 14]
 };
 const VILLAGE_FULL = { leaf:"Hidden Leaf", sand:"Hidden Sand", mist:"Hidden Mist", cloud:"Hidden Cloud", stone:"Hidden Stone" };
+/* village centers in world coords (world.js w3 expansion moved the villages far apart;
+   ACADEMY_POS is stored village-relative, these offsets map it to world space) */
+const VCENTER = { leaf:[0,0], sand:[-1620,1460], mist:[1660,540], cloud:[260,-1880], stone:[-1760,-1120] };
+function vco(vid){ const c = VCENTER[vid] || [0,0]; return c; }
 
 /* ---------- chakra natures ---------- */
 const NATURES = ["fire", "water", "wind", "earth", "lightning"];
@@ -105,7 +109,8 @@ function rankOf(level, passed) {
 function academyLayout(vid) {
   const b = ACADEMY_POS[vid];
   if (!b) return null;
-  const [x, z, yaw, w, d] = b;
+  const cv = vco(vid);
+  const [x, z, yaw, w, d] = [b[0] + cv[0], b[1] + cv[1], b[2], b[3], b[4]];
   const ux = Math.sin(yaw), uz = Math.cos(yaw);
   const px = Math.cos(yaw), pz = -Math.sin(yaw); // perpendicular
   const half = d / 2;
@@ -370,7 +375,7 @@ function open(system, save, sfx) {
 function closeAcademy() { const ov = $q("#acadOv"); if (ov) ov.remove(); }
 
 /* ---------- academy center (world coords) ---------- */
-function academyCenter(vid) { const p = ACADEMY_POS[vid]; return p ? [p[0], p[1]] : null; }
+function academyCenter(vid) { const p = ACADEMY_POS[vid]; if (!p) return null; const cv = vco(vid); return [p[0] + cv[0], p[1] + cv[1]]; }
 
 /* ---------- exam dialog buttons (Hayate's dialog extra) ---------- */
 function examDialogButtons() {
